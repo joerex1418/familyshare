@@ -1,2 +1,2 @@
-# familyshare
- All things family in one place
+# FamilyShare
+<i>All things family in one place</i>

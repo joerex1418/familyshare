@@ -1,3 +1,13 @@
+# Other
+.DS_Store
+.DS_Store/
+sandbox.py
+script.py
+*.ipynb
+SAMPLE_INPUT
+VAULT
+static/images/attic
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

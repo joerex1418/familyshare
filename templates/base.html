@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Load CSS files here -->
+    <!-- Sass-generated CSS files will load here in the 'assets' block -->
+    {% assets "style" %} 
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    
+    <title>{{ PAGE_TITLE | default("FamilyShare") }}</title>
+</head>
+
+<body>
+    <div id="header">
+        <h1>{{ PAGE_TITLE | default("FamilyShare") }}</h1>
+    
+        <div class="btn-list">
+            <a class="btn" href="/dashboard">Dashboard</a>
+            <a class="btn" href="/attic">The Attic</a>
+            <a class="btn" href="/calendar">Calendar</a>
+            <a class="btn" href="/vault">File Vault</a>
+        </div>
+    
+    </div>
+    
+    <div id="content">
+    {% block content %}
+    <!-- page content goes here -->
+    {% endblock content %}
+    </div>
+
+    <!-- Load static JavaScript files here -->
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

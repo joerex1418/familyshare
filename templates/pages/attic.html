@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div id="main-container">
+
+    <div id="attic_data">
+        {% for attic_item in attic_data %}
+            <div class="attic_item" data-id="{{ attic_item['id'] }}">
+                
+                <div class="image">
+                    {% set image_path = url_for('static', filename='images/noimage.png') %}
+                    {% if attic_item["image_name"] != None %}
+                    {% set image_path = url_for('static', filename='images/attic/{}'.format(attic_item["image_name"])) %}
+                    {% endif %}
+
+                    <img src="{{ image_path }}" alt="">
+                </div>
+                
+                <div class="item_details">
+                    <div class="title">{{ attic_item["title"] }}</div>
+                    <div class="created_at">
+                        <b>Posted: </b>{{ attic_item["created_at_datetime"].strftime("%b %d, %Y | %I:%M %p") }}
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock content %}
