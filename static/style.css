@@ -1,48 +1,134 @@
-body {
-  font-family: 'Rubik', sans-serif;
-  margin-right: 2rem;
-  margin-left: 2rem; }
-  body a.btn {
-    padding: 5px;
-    text-decoration: none;
-    border-bottom: 2px solid rgba(0, 0, 237, 0);
-    color: #000;
-    transition: border-bottom-color ease-in-out 100ms; }
-    body a.btn:visited {
-      color: inherit;
-      text-decoration: none; }
-      body a.btn:hover {
-        color: #0000ed;
-        border-bottom-color: #0000ed; }
-        body a.btn.selected {
-          color: #0000ed; }
-
-#content {
-  display: grid;
-  grid-template-columns: auto; }
-
-  #header {
-    display: grid;
-    justify-content: center; }
-
-    .btn-list {
+@use "sass:color"; 
+  body {
+    box-sizing: border-box;
+    font-family: 'Rubik', sans-serif;
+    margin-right: 2rem;
+    margin-left: 2rem; }
+    body .btn {
+      cursor: pointer;
+      font-size: 15px;
+      padding: 5px;
+      border-radius: 5px;
+      transition: all ease-in-out 120ms;
+      user-select: none;
       display: grid;
       justify-content: center;
-      column-gap: 1rem;
-      grid-auto-flow: column; }
+      justify-self: right;
+      width: max-content;
+      align-content: center;
+      height: max-content; }
+      body .btn.btn-red {
+        color: #fff;
+        background-color: #ce5151; }
+        body .btn.btn-red:hover {
+          background-color: #c83d3d; }
+      body .btn.btn-green {
+        color: #fff;
+        background-color: #009b00; }
+        body .btn.btn-green:hover {
+          background-color: #007d00; }
+    body a.btn {
+      border-radius: 0;
+      text-decoration: none;
+      border-bottom: 2px solid rgba(0, 0, 237, 0);
+      color: #000;
+      transition: border-bottom-color ease-in-out 120ms; }
+      body a.btn:visited {
+        color: inherit;
+        text-decoration: none; }
+        body a.btn:hover {
+          color: #0000ed;
+          border-bottom-color: #0000ed; }
+          body a.btn.selected {
+            color: #0000ed; }
 
-      #attic_data .attic_item {
-        display: grid;
-        grid-template-columns: max-content auto;
-        column-gap: 1rem; }
-        #attic_data .attic_item .image {
-          grid-column: 1 / span 1; }
-          #attic_data .attic_item .image img {
-            width: 150px;
-            max-width: 150px; }
-        #attic_data .attic_item .item_details {
-          display: grid; }
-          #attic_data .attic_item .item_details .title {
-            grid-row: 1 / span 1; }
-            #attic_data .attic_item .item_details .created_at {
-              grid-row: 2 / span 1; }
+  #content {
+    display: grid;
+    grid-template-columns: auto; }
+
+    #header {
+      display: grid;
+      justify-content: center; }
+
+      #main {
+        z-index: 1; }
+
+        .nav-list {
+          display: grid;
+          justify-content: center;
+          column-gap: 1rem;
+          grid-auto-flow: column; }
+
+          .btn-list {
+            display: grid;
+            column-gap: 1rem;
+            grid-auto-flow: column; }
+            .btn-list#attic-btn-list {
+              justify-content: left; }
+
+  .container {
+    margin: 5px; }
+
+    #attic_data .attic_item {
+      display: grid;
+      grid-template-columns: max-content auto;
+      column-gap: 1rem; }
+      #attic_data .attic_item .image {
+        grid-column: 1 / span 1; }
+        #attic_data .attic_item .image img {
+          width: 150px;
+          max-width: 150px; }
+      #attic_data .attic_item .item_details {
+        display: grid; }
+        #attic_data .attic_item .item_details .title {
+          grid-row: 1 / span 1; }
+          #attic_data .attic_item .item_details .created_at {
+            grid-row: 2 / span 1; }
+
+  #modal-container {
+    z-index: 0;
+    position: fixed;
+    display: grid;
+    inset: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.478);
+    opacity: 0;
+    transition: opacity ease-in-out 200ms; }
+    #modal-container span.optional {
+      font-size: 14px;
+      font-style: italic;
+      font-weight: normal; }
+      #modal-container.active {
+        z-index: 20;
+        opacity: 1; }
+
+  #attic-post-modal {
+    position: relative;
+    display: grid;
+    z-index: 0;
+    background-color: white;
+    border: 1px solid #444;
+    border-radius: 1rem;
+    transition: all ease-in-out 200ms;
+    top: -8rem;
+    height: max-content;
+    padding: 1rem;
+    justify-self: center; }
+    #attic-post-modal .input-row {
+      display: grid;
+      grid-auto-flow: row;
+      padding: 5px 0; }
+      #attic-post-modal textarea#description {
+        min-height: 140px;
+        font-family: inherit; }
+        #attic-post-modal input {
+          padding: 5px;
+          font-size: 16px; }
+          #attic-post-modal label {
+            padding: 5px;
+            font-size: 18px;
+            font-weight: bold; }
+            #attic-post-modal.active {
+              z-index: 20;
+              top: 5rem; }

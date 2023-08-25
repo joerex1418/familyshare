@@ -40,7 +40,8 @@ def create_attic_table():
             CREATE TABLE attic (
                 id TEXT,
                 title TEXT,
-                image_name TEXT,
+                images_list TEXT,
+                image_count INTEGER,
                 description TEXT,
                 belongs_to TEXT,
                 discovery_location TEXT,
@@ -52,7 +53,7 @@ def create_attic_table():
         
         conn.commit()
 
-def add_to_attic(title:str, image_name:typing.Union[pathlib.Path,str]=None, description:str=None, belongs_to:str=None, discovery_location:str=None, last_chance_datetime:str=None):
+def add_to_attic(title:str, images:typing.Union[pathlib.Path,str]=None, description:str=None, belongs_to:str=None, discovery_location:str=None, last_chance_datetime:str=None):
     with get_db_connection() as conn:
         c = conn.cursor()
         
@@ -60,24 +61,41 @@ def add_to_attic(title:str, image_name:typing.Union[pathlib.Path,str]=None, desc
         
         if isinstance(last_chance_datetime, (dt.date, dt.datetime)):
             last_chance_datetime = last_chance_datetime.strftime(DATETIME_FMT)
+        elif isinstance(last_chance_datetime, str):
+            last_chance_date = dt.datetime.strptime(last_chance_datetime, r"%Y-%m-%d")
+            last_chance_datetime = dt.datetime.combine(last_chance_date, dt.time(0,0,0))
+        
+        last_chance_datetime: dt.datetime
+        
+        images_list = []
+        if isinstance(images,str):
+            img = images
+            images_list.append(f"{item_id}-01" + pathlib.Path(img).suffix)
+        elif isinstance(images,(tuple,list)):
+            for ct, img in enumerate(images,1):
+                images_list.append(f"{item_id}-{ct:02d}" + pathlib.Path(img).suffix)
+        
+        image_count = len(images_list)
         
         new_post_data = {
             "id": item_id,
             "title": title,
-            "image_name": image_name,
+            "images_list": "|=|".join(images_list),
+            "image_count": image_count,
             "description": description,
             "belongs_to": belongs_to,
             "discovery_location": discovery_location,
-            "last_chance_datetime": last_chance_datetime,
+            "last_chance_datetime": last_chance_datetime.strftime(DATETIME_FMT),
             "created_at_datetime": dt.datetime.today().strftime(DATETIME_FMT)
         }
+        
         placeholder_keys = [f":{k}" for k in new_post_data.keys()]
         placeholder_keys_string = ",".join(placeholder_keys)
+        keys_string = placeholder_keys_string.replace(":","")
         
         c.execute(
             f"""
-            INSERT INTO attic 
-            (id, title, image_name, description, belongs_to, discovery_location, last_chance_datetime, created_at_datetime) 
+            INSERT INTO attic ({keys_string}) 
             
             VALUES ({placeholder_keys_string})
             """,
@@ -94,5 +112,10 @@ def get_attic_data() -> typing.List[typing.Dict]:
         
         for d in data:
             d["created_at_datetime"] = dt.datetime.strptime(d["created_at_datetime"], DATETIME_FMT)
+            d["last_chance_datetime"] = dt.datetime.strptime(d["last_chance_datetime"], DATETIME_FMT)
+            images_string_list = d["images_list"].split("|=|")
+            if images_string_list == ['']:
+                images_string_list = []
+            d["images_list"] = images_string_list
         
         return data
