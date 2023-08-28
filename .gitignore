@@ -6,7 +6,7 @@ script.py
 *.ipynb
 SAMPLE_INPUT
 VAULT
-static/images/attic
+static/images/attic/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

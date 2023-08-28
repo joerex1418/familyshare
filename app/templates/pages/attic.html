@@ -14,8 +14,8 @@
             </div>
 
             <div class="input-row">
-                <label for="photo-upload">Add Photos: <span class="optional">(optional)</span></label>
-                <input id="photo-upload" name="photo-upload" type="file" accept="image/*" multiple>
+                <label for="photos-upload">Add Photos: <span class="optional">(optional)</span></label>
+                <input id="photos-upload" name="photos-upload" type="file" accept="image/*" multiple>
             </div>
         
             <div class="input-row">
@@ -35,7 +35,7 @@
 
             <div class="input-row">
                 <label for="last-chance-date">Last Chance Date: <span class="optional">(optional)</span><br>
-                    <span style="font-weight: normal; font-style: italic; color: rgb(135, 135, 135)">
+                    <span style="font-weight: normal; font-style: italic; color: rgb(135, 135, 135); font-size: 14px;">
                         The last day to claim before it's sold or thrown away!
                     </span>
                 </label>
@@ -59,13 +59,12 @@
 
     <div id="attic_data" class="container">
         {% for attic_item in attic_data %}
-            <div class="attic_item" data-id="{{ attic_item['id'] }}">
+            <div class="attic_item" data-item_id="{{ attic_item['item_id'] }}">
                 
                 <div class="image">
                     {% set image_path = url_for('static', filename='images/noimage.png') %}
                     {% if attic_item["image_count"] > 0 %}
-                    {% set image_path = url_for('static', filename='images/attic/{}'.format(attic_item["image_name"])) %}
-                    {% set image_path = url_for('static', filename='images/noimage.png') %}
+                        {% set image_path = url_for('static', filename='images/attic/{}/{}'.format(attic_item["content_directory_name"], attic_item["content_filenames"][0])) %}
                     {% endif %}
 
                     <img src="{{ image_path }}" alt="">
@@ -75,6 +74,12 @@
                     <div class="title">{{ attic_item["title"] }}</div>
                     <div class="created_at">
                         <b>Posted: </b>{{ attic_item["created_at_datetime"].strftime("%b %d, %Y | %I:%M %p") }}
+                    </div>
+                    <div class="belongs_to">
+                        <b>Belongs To: </b>{{ attic_item["belongs_to"]}}
+                    </div>
+                    <div class="description">
+                        <div>{{ attic_item["description"] }}</div>
                     </div>
                 </div>
             </div>

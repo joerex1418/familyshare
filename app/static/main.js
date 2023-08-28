@@ -12,18 +12,17 @@ function clearAtticPostForm() {
 
 function submitNewAtticItem(e) {
   const formData = new FormData();
-  const fileInput = document.getElementById("photo-upload")
+  const fileInput = document.getElementById("photos-upload")
   
   formData.append("title", document.getElementById("title").value)
-  console.log(fileInput.files.length)
+
   for (let i = 0; i < fileInput.files.length; i++) {
     formData.append(`photo${i+1}`, fileInput.files[i])
   }
   formData.append("belongs-to", document.getElementById("belongs-to").value)
-  formData.append("found-in", document.getElementById("found-in").value)
   formData.append("description", document.getElementById("description").value)
+  formData.append("found-in", document.getElementById("found-in").value)
   formData.append("last-chance-date", document.getElementById("last-chance-date").value)
-  formData.append("photo_count", fileInput.files.length)
   
   fetch(
     "/attic", {

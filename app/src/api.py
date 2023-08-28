@@ -6,17 +6,23 @@ import pathlib
 import sqlite3
 import datetime as dt
 
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures.file_storage import FileStorage
+
 PathLike = typing.Union[os.PathLike, pathlib.Path]
 DATETIME_FMT = r"%Y-%m-%d_%H:%M:%S"
 
-from .paths import VAULT_DIR
+from .paths import ROOT_DIR
+
+STATIC = ROOT_DIR.joinpath("static")
+STATIC_IMAGES = STATIC.joinpath("images")
 
 def dict_factory(cursor, row):
     colnames = [c[0] for c in cursor.description]
     return {k:v for k,v in zip(colnames, row)}
 
 def get_db_connection():
-    _path = VAULT_DIR.joinpath("data.db")
+    _path = ROOT_DIR.joinpath("data.db")
     conn = sqlite3.connect(_path)
     conn.row_factory = dict_factory
     return conn
@@ -38,10 +44,11 @@ def create_attic_table():
             DROP TABLE IF EXISTS attic;
             
             CREATE TABLE attic (
-                id TEXT,
+                item_id TEXT,
                 title TEXT,
-                images_list TEXT,
+                posted_by TEXT,
                 image_count INTEGER,
+                content_path TEXT,
                 description TEXT,
                 belongs_to TEXT,
                 discovery_location TEXT,
@@ -53,11 +60,18 @@ def create_attic_table():
         
         conn.commit()
 
-def add_to_attic(title:str, images:typing.Union[pathlib.Path,str]=None, description:str=None, belongs_to:str=None, discovery_location:str=None, last_chance_datetime:str=None):
+def add_to_attic(
+    item_id:typing.Union[str,uuid.uuid4],/,
+    title:str,
+    posted_by:str,
+    media_content:typing.List[FileStorage]=None,
+    description:str=None,
+    belongs_to:str=None,
+    discovery_location:str=None,
+    last_chance_datetime:str=None
+    ):
     with get_db_connection() as conn:
         c = conn.cursor()
-        
-        item_id = str(uuid.uuid4())
         
         if isinstance(last_chance_datetime, (dt.date, dt.datetime)):
             last_chance_datetime = last_chance_datetime.strftime(DATETIME_FMT)
@@ -67,21 +81,20 @@ def add_to_attic(title:str, images:typing.Union[pathlib.Path,str]=None, descript
         
         last_chance_datetime: dt.datetime
         
-        images_list = []
-        if isinstance(images,str):
-            img = images
-            images_list.append(f"{item_id}-01" + pathlib.Path(img).suffix)
-        elif isinstance(images,(tuple,list)):
-            for ct, img in enumerate(images,1):
-                images_list.append(f"{item_id}-{ct:02d}" + pathlib.Path(img).suffix)
+        image_count = len(media_content)
+        content_path = STATIC_IMAGES.joinpath("attic", f"{item_id}")
+        if not content_path.exists() and image_count != 0:
+            content_path.mkdir()
         
-        image_count = len(images_list)
+        for file_object in media_content:
+            file_object.save(content_path.joinpath(secure_filename(file_object.filename)))
         
         new_post_data = {
-            "id": item_id,
+            "item_id": item_id,
             "title": title,
-            "images_list": "|=|".join(images_list),
+            "posted_by": posted_by,
             "image_count": image_count,
+            "content_path": str(content_path),
             "description": description,
             "belongs_to": belongs_to,
             "discovery_location": discovery_location,
@@ -94,11 +107,7 @@ def add_to_attic(title:str, images:typing.Union[pathlib.Path,str]=None, descript
         keys_string = placeholder_keys_string.replace(":","")
         
         c.execute(
-            f"""
-            INSERT INTO attic ({keys_string}) 
-            
-            VALUES ({placeholder_keys_string})
-            """,
+            f"INSERT INTO attic ({keys_string}) VALUES ({placeholder_keys_string})",
             new_post_data
         )
         
@@ -113,9 +122,11 @@ def get_attic_data() -> typing.List[typing.Dict]:
         for d in data:
             d["created_at_datetime"] = dt.datetime.strptime(d["created_at_datetime"], DATETIME_FMT)
             d["last_chance_datetime"] = dt.datetime.strptime(d["last_chance_datetime"], DATETIME_FMT)
-            images_string_list = d["images_list"].split("|=|")
-            if images_string_list == ['']:
-                images_string_list = []
-            d["images_list"] = images_string_list
+            d["content_directory_name"] = pathlib.Path(d["content_path"]).name
+            d["content_filenames"] = [x.name for x in pathlib.Path(d["content_path"]).glob('**/*') if x.is_file()]
+            # images_string_list = d["images_list"].split("|=|")
+            # if images_string_list == ['']:
+            #     images_string_list = []
+            # d["images_list"] = images_string_list
         
         return data
